@@ -19,16 +19,19 @@ jobs:
       - name: Load Docker image
         run: docker load < image.tar
 
-      - name: Run Trivy vulnerability scan
-        uses: aquasecurity/trivy-action@master
-        with:
-          image-ref: devops-project:${{ inputs.image-tag }}
-          format: table
-          severity: CRITICAL
-          exit-code: 1
-          ignore-unfixed: true
-          output: trivy-results.txt
+      - name: Install Trivy
+        run: |
+          sudo apt-get install wget apt-transport-https gnupg -y
+          wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | gpg --dearmor | sudo tee /usr/share/keyrings/trivy.gpg > /dev/null
+          echo "deb [signed-by=/usr/share/keyrings/trivy.gpg] https://aquasecurity.github.io/trivy-repo/deb generic main" | sudo tee /etc/apt/sources.list.d/trivy.list
+          sudo apt-get update
+          sudo apt-get install trivy -y
 
-      - name: Show Trivy results
-        if: always()
-        run: cat trivy-results.txt
+      - name: Run Trivy scan
+        run: |
+          trivy image --severity CRITICAL --ignore-unfixed devops-project:${{ inputs.image-tag }}
+          echo "Exit code: $?"
+
+      - name: Fail if critical found
+        run: |
+          trivy image --severity CRITICAL --ignore-unfixed --exit-code 1 devops-project:${{ inputs.image-tag }}
