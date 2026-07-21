@@ -1,7 +1,6 @@
 FROM node:20-alpine
 
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
-
 FROM node:20-alpine AS builder
 
 WORKDIR /app
@@ -19,6 +18,10 @@ WORKDIR /app
 COPY --from=builder /app/node_modules ./node_modules
 
 COPY app.js .
+
+RUN apk del --no-cache npm && \
+    rm -rf /usr/local/lib/node_modules/npm && \
+    rm -f /usr/local/bin/npm /usr/local/bin/npx
 
 RUN chown -R appuser:appgroup /app
 
