@@ -10,18 +10,18 @@ on:
 
 jobs:
   build:
-    uses: ./.github/fragments/build.yml
+    uses: ./.github/fragments/build.yml@main
     with:
       image-tag: ${{ github.sha }}
 
   security-scan:
     needs: build
-    uses: ./.github/fragments/security-scan.yml
+    uses: ./.github/fragments/security-scan.yml@main
     with:
       image-tag: ${{ github.sha }}
 
   deploy:
     needs: security-scan
-    uses: ./.github/fragments/deploy.yml
+    uses: ./.github/fragments/deploy.yml@main
     with:
       image-tag: ${{ github.sha }}
