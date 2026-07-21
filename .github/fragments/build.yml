@@ -1,0 +1,27 @@
+name: Build
+
+on:
+  workflow_call:
+    inputs:
+      image-tag:
+        required: true
+        type: string
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Build Docker image
+        run: docker build -t devops-project:${{ inputs.image-tag }} .
+
+      - name: Save image to file
+        run: docker save devops-project:${{ inputs.image-tag }} > image.tar
+
+      - name: Upload image as artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: docker-image
+          path: image.tar
