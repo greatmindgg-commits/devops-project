@@ -27,3 +27,8 @@ jobs:
           severity: CRITICAL
           exit-code: 1
           ignore-unfixed: true
+          output: trivy-results.txt
+
+      - name: Show Trivy results
+        if: always()
+        run: cat trivy-results.txt
